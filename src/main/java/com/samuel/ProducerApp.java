@@ -1,5 +1,6 @@
 package com.samuel;
 
+import org.apache.pulsar.client.api.MessageRoutingMode;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
@@ -8,7 +9,7 @@ public class ProducerApp {
 
     private static final String PULSAR_URL = "pulsar://localhost:6650";
 
-    private static final String TOPIC = "persistent://public/default/order-events";
+    private static final String TOPIC = "persistent://public/default/order-events-partitioned";
 
     public static void main(String[] args) throws Exception {
 
@@ -18,6 +19,8 @@ public class ProducerApp {
 
         Producer<String> producer = client.newProducer(Schema.STRING)
                 .topic(TOPIC)
+                .messageRoutingMode(MessageRoutingMode.RoundRobinPartition)
+                .enableBatching(false)
                 .create();
 
         for (int count = 1; count <= 15; count++) {

@@ -12,9 +12,9 @@ public class ConsumerApp {
 
     private static final String PULSAR_URL = "pulsar://localhost:6650";
 
-    private static final String TOPIC = "persistent://public/default/order-events";
+    private static final String TOPIC = "persistent://public/default/order-events-partitioned";
 
-    private static final String SUBSCRIPTION = "order-shared-sub";
+    private static final String SUBSCRIPTION = "partitioned-shared-sub";
 
 
     public static void main(String[] args) throws Exception {
@@ -39,6 +39,8 @@ public class ConsumerApp {
                 System.out.printf("[%s] No message received%n",consumerName);
                 continue;
             }
+
+            System.out.println("[" + consumerName + "] Received: " + message.getValue() + " | Topic: " + message.getTopicName());
 
             consumer.acknowledge(message);
             System.out.printf("[%s] Ack: %s%n",consumerName,message.getValue());
