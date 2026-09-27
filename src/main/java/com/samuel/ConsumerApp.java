@@ -14,41 +14,35 @@ public class ConsumerApp {
 
     private static final String TOPIC = "persistent://public/default/order-events";
 
-    private static final String SUBSCRIPTION = "order-sub";
+    private static final String SUBSCRIPTION = "order-shared-sub";
 
 
     public static void main(String[] args) throws Exception {
+        String consumerName = args.length > 0 ? args[0] : "consumer-1";
+
         PulsarClient client = PulsarClient.builder()
                 .serviceUrl(PULSAR_URL)
                 .build();
-
         Consumer<String> consumer = client.newConsumer(Schema.STRING)
                 .topic(TOPIC)
                 .subscriptionName(SUBSCRIPTION)
-                .subscriptionType(SubscriptionType.Exclusive)
+                .subscriptionType(SubscriptionType.Shared)
+                .consumerName(consumerName)
                 .subscribe();
 
-        System.out.println("[CONSUMER] Waiting for messages...");
+        System.out.printf("[%s] waiting for messages...%n",consumerName);
 
-        for (int count = 1; count <= 5; count++) {
+        while(true){
+            Message<String> message = consumer.receive(30,TimeUnit.SECONDS);
 
-            Message<String> message = consumer.receive(10, TimeUnit.SECONDS);
-
-            if (message == null) {
-                System.out.println("[CONSUMER] No message received.");
+            if (message == null){
+                System.out.printf("[%s] No message received%n",consumerName);
                 continue;
             }
 
-            System.out.println("[CONSUMER] Received: " + message.getValue());
-
             consumer.acknowledge(message);
-
-            System.out.println("[CONSUMER] ACK: " + message.getValue());
+            System.out.printf("[%s] Ack: %s%n",consumerName,message.getValue());
         }
 
-        consumer.close();
-        client.close();
-
-        System.out.println("[CONSUMER] Consumer stopped.");
     }
 }

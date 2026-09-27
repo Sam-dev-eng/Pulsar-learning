@@ -20,13 +20,14 @@ public class ProducerApp {
                 .topic(TOPIC)
                 .create();
 
-        for (int count = 1; count <= 5; count++) {
+        for (int count = 1; count <= 15; count++) {
 
             String message = "Order #" + count;
 
             System.out.println("[PRODUCER] Sending: " + message);
 
             producer.send(message);
+            Thread.sleep(300);
         }
 
         System.out.println("[PRODUCER] Done.");
